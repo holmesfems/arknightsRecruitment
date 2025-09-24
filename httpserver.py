@@ -9,7 +9,8 @@ print(f"Server port = {port}")
 app = Flask(__name__)
 
 @app.route('/recruitment/<text>', methods=['GET'])
-def doRecruitment(text):
+def doRecruitment(text:str):
+    text = text.replace("+","\n")
     matchTag = recruitFromOCR.matchTag(text)
     if(matchTag.isEmpty()): return "タグがありません"
     reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
