@@ -11,9 +11,7 @@ app = Flask(__name__)
 
 @app.route('/recruitment/', methods=['POST'])
 def doRecruitment():
-    jsonStr = request.data.decode('utf-8')  # デコード
-    param = json.loads(jsonStr)
-    text = param["text"]
+    text = request.args.get("text")
     matchTag = recruitFromOCR.matchTag(text)
     if(matchTag.isEmpty()): return "タグがありません"
     reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
