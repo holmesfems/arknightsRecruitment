@@ -1,16 +1,19 @@
 from recruitment import recruitment,recruitFromOCR
 import os
 
-from flask import Flask
+from flask import Flask,request
+import json
 
 port = int(os.environ["PORT"])
 print(f"Server port = {port}")
 
 app = Flask(__name__)
 
-@app.route('/recruitment/<text>', methods=['GET'])
+@app.route('/recruitment/', methods=['POST'])
 def doRecruitment(text:str):
-    text = text.replace("+","\n")
+    jsonStr = request.data.decode('utf-8')  # デコード
+    param = json.loads(jsonStr)
+    text = param["text"]
     matchTag = recruitFromOCR.matchTag(text)
     if(matchTag.isEmpty()): return "タグがありません"
     reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
