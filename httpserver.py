@@ -2,6 +2,7 @@ from http.server import HTTPServer,BaseHTTPRequestHandler
 from urllib.parse import urlparse
 from urllib.parse import parse_qs
 from recruitment import recruitment,recruitFromOCR
+import os
 
 def executeHTTPFunction(path,params):
     if(path == "recruitment"):
@@ -23,7 +24,9 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         path = parsed.path.replace('/','')
         self.wfile.write(f'{executeHTTPFunction(path,params)}'.encode())
 
-server_address = ('0.0.0.0',8080)
+port = int(os.environ["PORT"])
+server_address = ('0.0.0.0',port)
+print(f"Server port = {port}")
 
 def startServer():
     httpd = HTTPServer(server_address,CustomHTTPRequestHandler)
