@@ -12,6 +12,7 @@ app = Flask(__name__)
 @app.route('/recruitment/', methods=['POST'])
 def doRecruitment():
     text = request.args.get("text")
+    print(text)
     matchTag = recruitFromOCR.matchTag(text)
     if(matchTag.isEmpty()): return "タグがありません"
     reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
