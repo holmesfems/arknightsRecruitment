@@ -9,7 +9,7 @@ def executeHTTPFunction(path,params):
         text = params["text"][0]
         matchTag = recruitFromOCR.matchTag(text)
         if(matchTag.isEmpty()): return "タグがありません"
-        reply = recruitment.recruitDoProcess(matchTag,4,matchTag.isGlobal)
+        reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
         return reply
     else:
         return "エラー"
