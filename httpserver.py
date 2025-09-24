@@ -10,7 +10,7 @@ print(f"Server port = {port}")
 app = Flask(__name__)
 
 @app.route('/recruitment/', methods=['POST'])
-def doRecruitment(text:str):
+def doRecruitment():
     jsonStr = request.data.decode('utf-8')  # デコード
     param = json.loads(jsonStr)
     text = param["text"]
