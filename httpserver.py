@@ -29,3 +29,5 @@ def startServer():
     httpd = HTTPServer(server_address,CustomHTTPRequestHandler)
     print("server_started")
     httpd.serve_forever()
+
+startServer()
