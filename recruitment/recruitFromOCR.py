@@ -1,13 +1,5 @@
-import os,sys,re
+import re
 from typing import List,Set,Dict,Optional
-from google.cloud import vision
-from google.cloud import vision_v1
-from google.cloud import vision_v1p1beta1
-from google.cloud import vision_v1p2beta1
-from google.cloud import vision_v1p3beta1
-from google.cloud import vision_v1p4beta1
-from google.auth import api_key
-import random
 import yaml
 
 #下二つと統一、日本版認識用
@@ -105,65 +97,5 @@ def matchTag(result:str) -> MatchTagResponseData:
     if(len(jpzhMatch)>=len(enMatch)): return MatchTagResponseData(jpzhMatch,isGlobal=len(jpMatch)>=len(zhMatch))
     return MatchTagResponseData(enMatch,isGlobal=True)
 
-#入力: 画像のURI
-#出力: 検出されたタグが含まれるリスト 画像によっては6個以上になってしまうこともある
 
-_lastAvailabledClient = None
-_clientTypes = {
-    (vision,"vision"),
-    (vision_v1,"vision_v1"),
-    (vision_v1p1beta1,"vision_v1p1beta1"),
-    (vision_v1p2beta1,"vision_v1p2beta1"),
-    (vision_v1p3beta1,"vision_v1p3beta1"),
-    (vision_v1p4beta1,"vision_v1p4beta1")}
 
-def __getResult(imageURI:str, clientTypeTuple):
-    API_KEY = os.environ["CLOUDVISION_API_KEY"]
-    clientType = clientTypeTuple[0]
-    clientName = clientTypeTuple[1]
-    print(f"trying text annotation: {clientName}")
-    client = clientType.ImageAnnotatorClient(credentials=api_key.Credentials(API_KEY))
-    visionImage = clientType.Image()
-    visionImage.source.image_uri = imageURI
-
-    #メモ
-    #text_detectionとdocument_text_detectionの違いがよくわからない
-    #料金節約のために、ランダムでどちらかを使うという手もある
-    #今は一旦前者のみを使う
-    result = client.text_detection(image=visionImage).text_annotations
-    return result
-
-def __getResultFromAllClient(imageURI:str):
-    candidateSet = _clientTypes.copy()
-    global _lastAvailabledClient
-    if(_lastAvailabledClient != None):
-        result = __getResult(imageURI,_lastAvailabledClient)
-        if(len(result)!=0): return result
-        candidateSet.discard(_lastAvailabledClient)
-    while(len(candidateSet)>=1):
-        randomChoiced = random.choice(tuple(candidateSet))
-        result = __getResult(imageURI, randomChoiced)
-        if(len(result)!=0):
-            _lastAvailabledClient = randomChoiced
-            return result
-        candidateSet.discard(randomChoiced)
-    _lastAvailabledClient = None
-    return []
-
-def taglistFromImage(imageURI:str)->MatchTagResponseData:
-    #メモ
-    #text_detectionとdocument_text_detectionの違いがよくわからない
-    #料金節約のために、ランダムでどちらかを使うという手もある
-    #今は一旦前者のみを使う
-    result = __getResultFromAllClient(imageURI)
-    
-    #print(f"{result=}")
-    if len(result)==0: return None
-    result = result[0].description
-    
-    print("OCR result:" + result)
-    matches = matchTag(result)
-    print(matches)
-    if(matches.isIllegal()):
-        print("warning:タグの数が想定と違います")
-    return matches
