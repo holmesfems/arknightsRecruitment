@@ -22,7 +22,7 @@ class TagReplyData(BaseModel):
 async def root():
     return {"message": "Hello World"}
 
-@app.post('/recruitment/',response_model=TagReplyData)
+@app.post('/recruitment/',response_model=TagReplyData,description="Extract tags of arknights public recruitment from raw OCR data, and calculate high-rare tag combination")
 def doRecruitment(data:TagData):
     text = data.text
     #text = request.args.get("text")
