@@ -27,6 +27,3 @@ def doRecruitment(data:TagData):
     if(matchTag.isEmpty()): return "タグがありません"
     reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
     return reply
-
-if __name__ == '__main__':
-    uvicorn.run(app,host="0.0.0.0", port=port,log_level="debug")
