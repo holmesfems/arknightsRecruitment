@@ -14,11 +14,15 @@ app = FastAPI()
 class TagData(BaseModel):
     text: str
 
+class TagReplyData(BaseModel):
+    title: str
+    reply: str
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
-@app.post('/recruitment/')
+@app.post('/recruitment/',response_model=TagReplyData)
 def doRecruitment(data:TagData):
     text = data.text
     #text = request.args.get("text")
