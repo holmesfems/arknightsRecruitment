@@ -1,2 +1,3 @@
 pyyaml
-flask
+uvicorn[standard]
+fastapi[all]
