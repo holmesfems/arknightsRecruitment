@@ -14,6 +14,10 @@ app = FastAPI()
 class TagData(BaseModel):
     text: str
 
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
 @app.post('/recruitment/')
 def doRecruitment(data:TagData):
     text = data.text
