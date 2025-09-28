@@ -1,17 +1,22 @@
 from recruitment import recruitment,recruitFromOCR
 import os
-
-from flask import Flask,request
+import uvicorn
+from fastapi import FastAPI
+#from flask import Flask,request
 import json
+from pydantic import BaseModel
 
 port = int(os.environ["PORT"])
 print(f"Server port = {port}")
 
-app = Flask(__name__)
+app = FastAPI()
 
-@app.route('/recruitment/', methods=['POST'])
-def doRecruitment():
-    text= json.loads(request.data.decode("utf-8"))["text"]
+class TagData(BaseModel):
+    text: str
+
+@app.post('/recruitment/')
+def doRecruitment(data:TagData):
+    text = data.text
     #text = request.args.get("text")
     print(text)
     matchTag = recruitFromOCR.matchTag(text)
@@ -20,4 +25,4 @@ def doRecruitment():
     return reply
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=port)
+    uvicorn.run(app,host="0.0.0.0", port=port,log_level="debug")
