@@ -160,10 +160,10 @@ class OperatorList(BaseModel):
         return OperatorList([operator for operator in self.operators if operator.stars==star])
 
 class TagToOperatorMap:
-    def __init__(self,data:Dict[Set[str],OperatorList]):
+    def __init__(self,data:Dict[Tuple[str],OperatorList]):
         self.data = data
 
-    def getOrEmpty(self,key:Set[str]):
+    def getOrEmpty(self,key:Tuple[str]):
         return self.data.get(key,OperatorList([]))
 
 def satisfyTags(operator:Operator,tagClassList:Tuple[RecruitTag]):
@@ -184,11 +184,11 @@ def createTagMap(tagList:List[str],operators:List[Operator]):
     tagCombinations:List[Tuple[RecruitTag]] = list()
     for i in range(3):
         tagCombinations += createCombinations(tagClasses,i+1)
-    searchMap:Dict[Set[str],OperatorList] = {}
+    searchMap:Dict[Tuple[str],OperatorList] = {}
     for combination in tagCombinations:
         satisfies = [operator for operator in operators if satisfyTags(operator,combination)]
         if(satisfies):
-            searchMap[set(tag.name for tag in combination)] = OperatorList(operators=satisfies)
+            searchMap[combination] = OperatorList(operators=satisfies)
     return TagToOperatorMap(searchMap)
 
 def createCombinations(tagClassList:List[RecruitTag],number:int):
@@ -233,7 +233,7 @@ class TagMatchResult(BaseModel):
 
 def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equals = False,clearRedundant = False,showRobot = False):
     tagCombinations = createTagStrCombinations(tagList)
-    result: List[Tuple[Set[str],OperatorList]]  = []
+    result: List[Tuple[Tuple[str],OperatorList]]  = []
     nowTime = getnow().timestamp()
     for combine in tagCombinations:
         operators = GlobalTagMap.getOrEmpty(combine)
@@ -249,7 +249,7 @@ def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equa
                     result.append((combine,operators))
             else:
                 if(operators.minStar == minStar):
-                    result.append(combine,operators.filterByStar(minStar))
+                    result.append((combine,operators.filterByStar(minStar)))
     return TagMatchResult(result=result)
 
 def searchMapToStringChunks(tagMatchResult:TagMatchResult):
