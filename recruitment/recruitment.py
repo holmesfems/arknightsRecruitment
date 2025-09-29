@@ -206,15 +206,8 @@ GlobalTagMap = createTagMap(tagNameList,operators_JP)
 MainlandTagMap = createTagMap(tagNameList,operators_New)
 FutureTagMap  = createTagMap(tagNameList,operators_Future)
 
-print(f"{GlobalTagMap.data=}")
-print(f"{MainlandTagMap.data=}")
-print(f"{FutureTagMap.data=}")
-
 def isIndependent(key:tuple,keyList:List[tuple]):
     return all(not allAinBnotEq(item,key) for item in keyList)
-
-def clearSearchMap(redundantMap:dict):
-    return {key:value for (key,value) in redundantMap.items() if isIndependent(key,redundantMap.keys())}
 
 #星〇確定タグの組み合わせリストを出力する
 #equals: ジャスト星〇確定なのか
@@ -237,7 +230,7 @@ class TagMatchResult:
     def keys(self):
         return [x[0] for x in self.result]
 
-def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equals = False,clearRedundant = False,showRobot = False):
+def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equals = False,showRobot = False):
     tagClasses = createTagList(tagList)
     tagCombinations:List[Tuple[RecruitTag]] = []
     for i in range(3):
@@ -245,16 +238,14 @@ def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equa
     result: List[Tuple[Tuple[RecruitTag],OperatorList]]  = []
     nowTime = getnow().timestamp()
     for combine in tagCombinations:
-        print(f"{combine=}")
         operators = GlobalTagMap.getOrEmpty(combine)
-        print(f"{operators=}")
         if(not isGlobal): operators = operators + MainlandTagMap.getOrEmpty(combine)
         future = FutureTagMap.getOrEmpty(combine)
         if(not future.isEmpty()):
             operators = operators + future.getAvailableList(nowTime)
         if(not operators.isEmpty()):
             if(not equals):
-                if(minStar == 1 and showRobot):
+                if(operators.minStar == 1 and showRobot):
                     result.append((combine,operators))
                 elif(operators.minStar >= minStar):
                     result.append((combine,operators))
@@ -328,10 +319,15 @@ def mapToMsgChunksHighStars(combineList:TagMatchResult):
         chunks.append(chunk)
     return chunks
 
+def clearSearchMap(matchResult:TagMatchResult):
+    keys = matchResult.keys()
+    return TagMatchResult([(key,value) for (key,value) in matchResult.result if isIndependent(key,keys)])
+
 def showHighStars(minStar:int = 4,isGlobal:bool = True) -> RCReply:
     #最低の星が満たすやつを探す
     searchList = positionTags + jobTags + otherTags
-    allCombineList = calculateTagMatchResult(searchList,isGlobal=isGlobal,minStar=minStar,showRobot=False,equals=True,clearRedundant=True)
+    allCombineList = calculateTagMatchResult(searchList,isGlobal=isGlobal,minStar=minStar,showRobot=False,equals=True)
+    clearedSearchMap = clearSearchMap(matchResult=allCombineList)
     chunks = mapToMsgChunksHighStars(allCombineList)
     listForAI = [
         {
