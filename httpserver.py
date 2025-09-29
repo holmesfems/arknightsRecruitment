@@ -30,4 +30,14 @@ def doRecruitment(data:TagData):
     matchTag = recruitFromOCR.matchTag(text)
     if(matchTag.isEmpty()): return "タグがありません"
     reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
-    return reply
+    return {"title":reply.embbedTitle,"reply":reply.responseForAI}
+
+class HighStarData(BaseModel):
+    star: int = Field(description="The raw data of OCR result. Each tag should be separated by line breaks")
+
+@app.post('/showHighStars/')
+def doRecruitment(data:HighStarData):
+    star = data.star
+    #text = request.args.get("text")
+    reply = recruitment.showHighStars(star)
+    return {"title":reply.embbedTitle,"replyForAI":reply.responseForAI,"replyToShow":"".join(reply.embbedContents)}
