@@ -127,7 +127,7 @@ class OperatorList(BaseModel):
     starSet:Set[int] = Field(default=set())
     def __init__(self,operators:List[Operator]):
         sortedByStar = sorted(operators,key=lambda x:x.stars,reverse=False)
-        super.__init__(operators = sortedByStar)
+        super().__init__(operators = sortedByStar)
         if(sortedByStar):
             self.minStar = minStar(sortedByStar)
             self.starSet = set(item.stars for item in sortedByStar)
