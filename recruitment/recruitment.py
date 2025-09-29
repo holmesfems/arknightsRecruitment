@@ -228,8 +228,9 @@ def allAinBnotEq(a:tuple,b:tuple):
         return False
     return all(item in b for item in a)
 
-class TagMatchResult(BaseModel):
-    result: List[Tuple[Tuple[RecruitTag],OperatorList]] = Field(default=[])
+class TagMatchResult:
+    def __init__(self, result:List[Tuple[Tuple[RecruitTag],OperatorList]]):
+        self.result = result
     def isEmpty(self):
         return len(self.result) == 0
     def keys(self):
