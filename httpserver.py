@@ -28,7 +28,7 @@ def doRecruitment(data:TagData):
     #text = request.args.get("text")
     print(text)
     matchTag = recruitFromOCR.matchTag(text)
-    if(matchTag.isEmpty()): return "タグがありません"
+    if(matchTag.isEmpty()): return {"reply":"タグがありません","title":"エラー"}
     reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
     return {"title":reply.embbedTitle,"reply":reply.responseForAI}
 

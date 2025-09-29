@@ -204,6 +204,10 @@ GlobalTagMap = createTagMap(tagNameList,operators_JP)
 MainlandTagMap = createTagMap(tagNameList,operators_New)
 FutureTagMap  = createTagMap(tagNameList,operators_Future)
 
+print(f"{GlobalTagMap.data=}")
+print(f"{MainlandTagMap.data=}")
+print(f"{FutureTagMap.data=}")
+
 def isIndependent(key:tuple,keyList:List[tuple]):
     return all(not allAinBnotEq(item,key) for item in keyList)
 
