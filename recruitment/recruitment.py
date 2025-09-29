@@ -121,6 +121,19 @@ def createTagList(tagNameList):
         if(tagClass is not None): ret.append(tagClass)
     return ret
 
+#オペレーターリストの一番低い星を返す
+#一番高い星が3以下であれば、一番高い星を返す
+def minStar(operatorList:List[Operator]):
+    least = 3
+    allstarSet = set([operator.stars for operator in operatorList])
+    starList = [x for x in allstarSet if x>=least]
+    restList = [x for x in allstarSet if x not in starList]
+    if(starList):
+        return min(starList)
+    if(restList):
+        return max(restList)
+    return 0
+
 class OperatorList(BaseModel):
     operators:List[Operator] = Field(default=[])
     minStar:int = 0
@@ -191,24 +204,6 @@ MainlandTagMap = createTagMap(tagNameList,operators_New)
 FutureTagMap  = createTagMap(tagNameList,operators_Future)
 
 
-
-def maxStar(operatorList:List[Operator]):
-    starList = [operator.stars for operator in operatorList]
-    if(starList): return max(starList)
-    return 0
-
-#オペレーターリストの一番低い星を返す
-#一番高い星が3以下であれば、一番高い星を返す
-def minStar(operatorList:List[Operator]):
-    least = 3
-    allstarSet = set([operator.stars for operator in operatorList])
-    starList = [x for x in allstarSet if x>=least]
-    restList = [x for x in allstarSet if x not in starList]
-    if(starList):
-        return min(starList)
-    if(restList):
-        return max(restList)
-    return 0
 
 def isIndependent(key:tuple,keyList:List[tuple]):
     return all(not allAinBnotEq(item,key) for item in keyList)
