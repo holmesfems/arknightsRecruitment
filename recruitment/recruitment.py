@@ -197,13 +197,12 @@ def createCombinations(tagClassList:List[RecruitTag],number:int):
 def createTagStrCombinations(tagStrList:Iterable[str]):
     ret:List[Set[str]] = []
     for i in range(3):
-        ret += [set(item) for item in itertools.combinations(tagStrList,i+1)]
+        ret += list(itertools.combinations(tagStrList,i+1))
     return ret
+
 GlobalTagMap = createTagMap(tagNameList,operators_JP)
 MainlandTagMap = createTagMap(tagNameList,operators_New)
 FutureTagMap  = createTagMap(tagNameList,operators_Future)
-
-
 
 def isIndependent(key:tuple,keyList:List[tuple]):
     return all(not allAinBnotEq(item,key) for item in keyList)
@@ -278,6 +277,7 @@ def recruitDoProcess(inputTagList:Iterable[str],minStar:Optional[int]=None,isGlo
     #OpenAIから呼び出す予定なし
     inputList = set(inputTagList)
     inputList = list(filter(lambda x:x is not None and x in tagNameList,inputList))
+    inputList = sorted(inputList,key=lambda x:tagNameList.index(x))
     if(minStar is None): minStar = 1
     showRobot = False
     if(minStar == 4): showRobot = True
