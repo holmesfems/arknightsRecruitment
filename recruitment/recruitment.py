@@ -239,7 +239,9 @@ def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equa
     result: List[Tuple[Tuple[str],OperatorList]]  = []
     nowTime = getnow().timestamp()
     for combine in tagCombinations:
+        print(f"{combine=}")
         operators = GlobalTagMap.getOrEmpty(combine)
+        print(f"{operators=}")
         if(not isGlobal): operators = operators + MainlandTagMap.getOrEmpty(combine)
         future = FutureTagMap.getOrEmpty(combine)
         if(not future.isEmpty()):
