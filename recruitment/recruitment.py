@@ -12,7 +12,7 @@ from rcutils.getnow import getnow,JST
 import json
 
 class RecruitTag(ABC):
-    def __init__(self,tagName):
+    def __init__(self,tagName:str):
         self.name = tagName
     
     @property
@@ -26,7 +26,7 @@ class RecruitTag(ABC):
         return self.name
 
 class EliteTag(RecruitTag):
-    def __init__(self,tagName):
+    def __init__(self,tagName:str):
         RecruitTag.__init__(self,tagName) 
     
     @property
@@ -41,7 +41,7 @@ class EliteTag(RecruitTag):
         return False
     
 class JobTag(RecruitTag):
-    def __init__(self,tagName):
+    def __init__(self,tagName:str):
         RecruitTag.__init__(self,tagName)
     
     @property
@@ -53,7 +53,7 @@ class JobTag(RecruitTag):
         return False
 
 class PositionAndOtherTag(RecruitTag):
-    def __init__(self,tagName):
+    def __init__(self,tagName:str):
         RecruitTag.__init__(self,tagName)
     
     @property
@@ -188,6 +188,7 @@ def createTagMap(tagList:List[str],operators:List[Operator]):
     for combination in tagCombinations:
         satisfies = [operator for operator in operators if satisfyTags(operator,combination)]
         if(satisfies):
+            key = tuple([item.name for item in combination])
             searchMap[combination] = OperatorList(operators=satisfies)
     return TagToOperatorMap(searchMap)
 
@@ -195,9 +196,9 @@ def createCombinations(tagClassList:List[RecruitTag],number:int):
     return list(itertools.combinations(tagClassList,number))
 
 def createTagStrCombinations(tagStrList:Iterable[str]):
-    ret:List[Set[str]] = []
+    ret:List[Tuple[str]] = []
     for i in range(3):
-        ret += list(itertools.combinations(tagStrList,i+1))
+        ret += list(tuple(x) for x in itertools.combinations(tagStrList,i+1))
     return ret
 
 GlobalTagMap = createTagMap(tagNameList,operators_JP)
