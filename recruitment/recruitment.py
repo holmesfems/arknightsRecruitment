@@ -196,7 +196,7 @@ def createTagMap(tagList:List[str],operators:List[Operator]):
     return TagToOperatorMap(searchMap)
 
 def createCombinations(tagClassList:List[RecruitTag],number:int):
-    return list(itertools.combinations(tagClassList,number))
+    return [tuple(x) for x in itertools.combinations(tagClassList,number)]
 
 def createTagStrCombinations(tagStrList:Iterable[str]):
     ret:List[Tuple[str]] = []
