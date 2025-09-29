@@ -153,6 +153,19 @@ class TagToOperatorMap:
     def getOrEmpty(self,key:Set[str]):
         return self.data.get(key,OperatorList([]))
 
+def satisfyTags(operator:Operator,tagClassList:Tuple[RecruitTag]):
+    #星6は上級エリート必須
+    needElite = (int(operator.stars) == 6)
+    hasElite = False
+    for tag in tagClassList:
+        if(not tag.containedIn(operator)):
+            return False
+        if tag.type == "elite":
+            hasElite = True
+    if needElite and not hasElite:
+        return False
+    return True
+
 def createTagMap(tagList:List[str],operators:List[Operator]):
     tagClasses = createTagList(tagList)
     tagCombinations:List[Tuple[RecruitTag]] = list()
@@ -177,18 +190,7 @@ GlobalTagMap = createTagMap(tagNameList,operators_JP)
 MainlandTagMap = createTagMap(tagNameList,operators_New)
 FutureTagMap  = createTagMap(tagNameList,operators_Future)
 
-def satisfyTags(operator:Operator,tagClassList:List[RecruitTag]):
-    #星6は上級エリート必須
-    needElite = (int(operator.stars) == 6)
-    hasElite = False
-    for tag in tagClassList:
-        if(not tag.containedIn(operator)):
-            return False
-        if tag.type == "elite":
-            hasElite = True
-    if needElite and not hasElite:
-        return False
-    return True
+
 
 def maxStar(operatorList:List[Operator]):
     starList = [operator.stars for operator in operatorList]
