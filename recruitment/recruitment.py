@@ -117,12 +117,10 @@ def createTag(tagName):
         return PositionAndOtherTag(tagName)
     return None
 
-def createTagList(tagNameList):
-    ret:List[RecruitTag] = list()
-    for tagName in tagNameList:
-        tagClass = createTag(tagName)
-        if(tagClass is not None): ret.append(tagClass)
-    return ret
+recruitTagDict = {name:createTag(name) for name in tagNameList}
+
+def createTagList(nameList:List[str]):
+    return [recruitTagDict[tagName] for tagName in nameList]
 
 #オペレーターリストの一番低い星を返す
 #一番高い星が3以下であれば、一番高い星を返す
@@ -183,7 +181,7 @@ def satisfyTags(operator:Operator,tagClassList:Tuple[RecruitTag]):
     return True
 
 def createTagMap(tagList:List[str],operators:List[Operator]):
-    tagClasses = createTagList(tagList)
+    tagClasses = recruitTagDict.values()
     tagCombinations:List[Tuple[RecruitTag]] = list()
     for i in range(3):
         tagCombinations += createCombinations(tagClasses,i+1)
