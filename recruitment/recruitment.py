@@ -328,7 +328,7 @@ def showHighStars(minStar:int = 4,isGlobal:bool = True) -> RCReply:
     searchList = positionTags + jobTags + otherTags
     allCombineList = calculateTagMatchResult(searchList,isGlobal=isGlobal,minStar=minStar,showRobot=False,equals=True)
     clearedSearchMap = clearSearchMap(matchResult=allCombineList)
-    chunks = mapToMsgChunksHighStars(allCombineList)
+    chunks = mapToMsgChunksHighStars(clearedSearchMap)
     listForAI = [
         {
             "tags": str(key),
