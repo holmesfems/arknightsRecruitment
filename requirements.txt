@@ -1,3 +1,4 @@
 pyyaml
 uvicorn[standard]
 fastapi[all]
+discord
