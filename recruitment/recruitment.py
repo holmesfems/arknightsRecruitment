@@ -189,7 +189,7 @@ def createTagMap(tagList:List[str],operators:List[Operator]):
         satisfies = [operator for operator in operators if satisfyTags(operator,combination)]
         if(satisfies):
             key = tuple([item.name for item in combination])
-            searchMap[combination] = OperatorList(operators=satisfies)
+            searchMap[key] = OperatorList(operators=satisfies)
     return TagToOperatorMap(searchMap)
 
 def createCombinations(tagClassList:List[RecruitTag],number:int):
