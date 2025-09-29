@@ -189,7 +189,7 @@ def createTagMap(tagList:List[str],operators:List[Operator]):
         satisfies = [operator for operator in operators if satisfyTags(operator,combination)]
         if(satisfies):
             key = tuple([item.name for item in combination])
-            searchMap[key] = OperatorList(operators=satisfies)
+            searchMap[combination] = OperatorList(operators=satisfies)
     return TagToOperatorMap(searchMap)
 
 def createCombinations(tagClassList:List[RecruitTag],number:int):
@@ -229,15 +229,18 @@ def allAinBnotEq(a:tuple,b:tuple):
     return all(item in b for item in a)
 
 class TagMatchResult(BaseModel):
-    result: List[Tuple[Set[str],OperatorList]] = Field(default=[])
+    result: List[Tuple[Tuple[RecruitTag],OperatorList]] = Field(default=[])
     def isEmpty(self):
         return len(self.result) == 0
     def keys(self):
         return [x[0] for x in self.result]
 
 def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equals = False,clearRedundant = False,showRobot = False):
-    tagCombinations = createTagStrCombinations(tagList)
-    result: List[Tuple[Tuple[str],OperatorList]]  = []
+    tagClasses = createTagList(tagList)
+    tagCombinations:List[Tuple[RecruitTag]] = []
+    for i in range(3):
+        tagCombinations += createCombinations(tagClasses,i+1)
+    result: List[Tuple[Tuple[RecruitTag],OperatorList]]  = []
     nowTime = getnow().timestamp()
     for combine in tagCombinations:
         print(f"{combine=}")
