@@ -23,7 +23,7 @@ class RecruitTag(ABC):
     def containedIn(operator:Operator)->bool:...
 
     def __repr__(self):
-        return self.name + "(tag)"
+        return self.name
     
     def __str__(self):
         return self.name
@@ -74,7 +74,7 @@ class Operator(BaseModel):
     stars:int
     beginFrom:float|None = None
 
-    def __repr__(self):
+    def __str__(self):
         return "★{0}".format(self.stars)+self.name
 
 #近い将来実装予定のオペレーターを、先に書き込めるようにするためのコード
