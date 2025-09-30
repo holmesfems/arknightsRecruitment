@@ -78,8 +78,17 @@ class Operator(BaseModel):
         return "★{0}".format(self.stars)+self.name
 
 #近い将来実装予定のオペレーターを、先に書き込めるようにするためのコード
-#"main","new"タグの他、"2024-08-08"などで、実装時間を指定できるようにする
-    
+#"main","new"タグの他、"20240808"などで、実装時間を指定できるようにする
+
+class FutureList(BaseModel):
+    yyyymmdd: str
+    opList: List[Operator] = Field(default={})
+
+class OperatorDB(BaseModel):
+    main: List[Operator] = Field(default=[])
+    new: List[Operator] = Field(default=[])
+    future: List[FutureList] = Field(default=[])
+
 def _parseDate(key:str) -> datetime:
     year = int(key[:4])
     month = int(key[4:6])
@@ -88,13 +97,14 @@ def _parseDate(key:str) -> datetime:
 
 with open("./recruitment/recruitmentOperators.json","rb") as file:
     operatorDB = yaml.safe_load(file)
-    operators_JP = [Operator.model_validate(item) for item in operatorDB["main"]]
-    operators_New = [Operator.model_validate(item) for item in operatorDB["new"]]
+    operatorDB = OperatorDB.model_validate(operatorDB)
+    operators_JP = operatorDB.main
+    operators_New = operatorDB.new
     operators_Future:list[Operator] = []
-    for key in operatorDB["future"]:
-        beginTime = _parseDate(key).timestamp()
-        for item in operatorDB["future"][key]:
-            operator = Operator.model_validate(item)
+    futureList = operatorDB.future
+    for futureItem in futureList:
+        beginTime = _parseDate(futureItem.yyyymmdd).timestamp()
+        for operator in futureItem.opList:
             operator.beginFrom = beginTime
             operators_Future.append(operator)
 
@@ -189,7 +199,6 @@ def createTagMap(tagList:List[str],operators:List[Operator]):
     for combination in tagCombinations:
         satisfies = [operator for operator in operators if satisfyTags(operator,combination)]
         if(satisfies):
-            key = tuple([item.name for item in combination])
             searchMap[combination] = OperatorList(operators=satisfies)
     return TagToOperatorMap(searchMap)
 
@@ -209,10 +218,7 @@ FutureTagMap  = createTagMap(tagNameList,operators_Future)
 def isIndependent(key:tuple,keyList:List[tuple]):
     return all(not allAinBnotEq(item,key) for item in keyList)
 
-#星〇確定タグの組み合わせリストを出力する
-#equals: ジャスト星〇確定なのか
-#clearRedundant: 冗長タグを消すか(例： 先鋒+治療→星4なので、先鋒+治療+cost回復は要らないよね)
-#showRobot: ロボットタグがあるときのみ、星1オペレーターを表示する
+
 
 def toStrList(list):
     return [str(x) for x in list]
@@ -230,6 +236,10 @@ class TagMatchResult:
     def keys(self):
         return [x[0] for x in self.result]
 
+#星〇確定タグの組み合わせリストを出力する
+#equals: ジャスト星〇確定なのか
+#showRobot: ロボット確定タグでオペレーターを表示する
+
 def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equals = False,showRobot = False):
     tagClasses = createTagList(tagList)
     tagCombinations:List[Tuple[RecruitTag]] = []
@@ -242,7 +252,10 @@ def calculateTagMatchResult(tagList:Iterable[str],isGlobal:bool,minStar:int,equa
         if(not isGlobal): operators = operators + MainlandTagMap.getOrEmpty(combine)
         future = FutureTagMap.getOrEmpty(combine)
         if(not future.isEmpty()):
-            operators = operators + future.getAvailableList(nowTime)
+            if(isGlobal):
+                operators = operators + future.getAvailableList(nowTime)
+            else:
+                operators = operators + future
         if(not operators.isEmpty()):
             if(not equals):
                 if(operators.minStar == 1 and showRobot):
@@ -298,19 +311,19 @@ def recruitDoProcess(inputTagList:Iterable[str],minStar:Optional[int]=None,isGlo
 def compareTagKey(tag:str):
     return tagNameList.index(tag) if tag in tagNameList else -1
 
-def compareTagSetKey(tagSet:Set):
-    num = len(tagSet)
+def compareTagTupleKey(tagTuple:Tuple):
+    num = len(tagTuple)
     order = len(tagNameList)
     ret = 0
     for i in range(num):
-        ret += compareTagKey(tagSet[i]) * order**(2-i)
+        ret += compareTagKey(tagTuple[i]) * order**(2-i)
     return ret
 
 def mapToMsgChunksHighStars(combineList:TagMatchResult):
     if(combineList.isEmpty()):
         return []
     chunks = []
-    keySorted = sorted(combineList.result,key=lambda x:compareTagSetKey(x[0]))
+    keySorted = sorted(combineList.result,key=lambda x:compareTagTupleKey(x[0]))
     for (key,value) in keySorted:
         keyStrList = toStrList(key)
         keyMsg = "+".join(keyStrList)

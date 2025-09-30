@@ -26,7 +26,7 @@ async def root():
 def doRecruitment(data:TagData):
     text = data.text
     #text = request.args.get("text")
-    print(text)
+    #print(text)
     matchTag = recruitFromOCR.matchTag(text)
     if(matchTag.isEmpty()): return {"reply":"タグがありません","title":"エラー"}
     reply = recruitment.recruitDoProcess(matchTag.matches,4,matchTag.isGlobal)
